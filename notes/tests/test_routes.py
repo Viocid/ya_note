@@ -1,24 +1,15 @@
 from http import HTTPStatus
 
 from django.contrib.auth import get_user_model
-from django.test import TestCase
 from django.urls import reverse
-from notes.models import Note
+
+from notes.tests.base_class_data import BaseClassData
 
 User = get_user_model()
 
 
-class TestRoutes(TestCase):
+class TestRoutes(BaseClassData):
     """Тест маршрутов."""
-
-    @classmethod
-    def setUpTestData(cls):
-        """Создание тестовых объектов."""
-        cls.author = User.objects.create(username="Дарт Вейдер")
-        cls.reader = User.objects.create(username="R2D2")
-        cls.notes = Note.objects.create(
-            title="ttt", text="ttt", slug="ttt", author=cls.author
-        )
 
     def test_pages_availability(self):
         """Доступ страниц анонимному пользователю."""
