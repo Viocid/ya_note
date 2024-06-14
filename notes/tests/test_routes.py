@@ -19,9 +19,8 @@ class TestRoutes(BaseClassData):
             ("users:logout", None),
             ("users:signup", None),
         )
-        for name, args in urls:
-            with self.subTest(name=name):
-                url = reverse(name, args=args)
+        for url in self.url_anon:
+            with self.subTest(url=url):
                 response = self.client.get(url)
                 self.assertEqual(response.status_code, HTTPStatus.OK)
 
@@ -36,9 +35,8 @@ class TestRoutes(BaseClassData):
             ("notes:delete", (self.notes.slug,)),
         )
         login_url = reverse("users:login")
-        for name, args in urls:
-            with self.subTest(name=name):
-                url = reverse(name, args=args)
+        for url in self.url_red_anon:
+            with self.subTest(url=url):
                 redirect_url = f"{login_url}?next={url}"
                 response = self.client.get(url)
                 self.assertRedirects(response, redirect_url)

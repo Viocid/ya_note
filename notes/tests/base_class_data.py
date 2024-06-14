@@ -30,33 +30,34 @@ class BaseClassData(TestCase):
         cls.url_add = reverse("notes:add")
         cls.url_edit = reverse("notes:edit", args=(cls.notes.slug,))
         cls.url_delete = reverse("notes:delete", args=(cls.notes.slug,))
+        cls.url_success = reverse("notes:success")
         cls.url_add_edit = (
-            reverse("notes:add", args=None),
-            reverse("notes:edit", args=(cls.notes.slug,)),
+            cls.url_add,
+            cls.url_edit,
         )
-        cls.url_add_edit = (
-            ("notes:home", None),
-            ("users:login", None),
-            ("users:logout", None),
-            ("users:signup", None),
+        cls.url_anon = (
+            reverse("notes:home", None),
+            reverse("users:login", None),
+            reverse("users:logout", None),
+            reverse("users:signup", None),
         )
-        cls.url_add_edit = (
-            ("notes:detail", (self.notes.slug,)),
-            ("notes:success", None),
-            ("notes:add", None),
-            ("notes:list", None),
-            ("notes:edit", (self.notes.slug,)),
-            ("notes:delete", (self.notes.slug,)),
+        cls.url_red_anon = (
+            cls.url_detail,
+            cls.url_success,
+            cls.url_add,
+            cls.url_list,
+            cls.url_edit,
+            cls.url_delete,
         )
-        cls.url_add_edit = (
-            ("notes:success", None),
-            ("notes:add", None),
-            ("notes:list", None),
+        cls.url_user = (
+            cls.url_success,
+            cls.url_add,
+            cls.url_list,
         )
-        cls.url_add_edit = (
-            ("notes:detail", (self.notes.slug,)),
-            ("notes:edit", (self.notes.slug,)),
-            ("notes:delete", (self.notes.slug,)),
+        cls.url_users = (
+            cls.url_detail,
+            cls.url_edit,
+            cls.url_delete,
         )
 
         cls.note_form = {
