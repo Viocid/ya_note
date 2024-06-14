@@ -13,12 +13,6 @@ class TestRoutes(BaseClassData):
 
     def test_pages_availability(self):
         """Доступ страниц анонимному пользователю."""
-        urls = (
-            ("notes:home", None),
-            ("users:login", None),
-            ("users:logout", None),
-            ("users:signup", None),
-        )
         for url in self.url_anon:
             with self.subTest(url=url):
                 response = self.client.get(url)
@@ -26,14 +20,6 @@ class TestRoutes(BaseClassData):
 
     def test_redirect_for_anonymous_client(self):
         """Перенаправления анонимного пользователя."""
-        urls = (
-            ("notes:detail", (self.notes.slug,)),
-            ("notes:success", None),
-            ("notes:add", None),
-            ("notes:list", None),
-            ("notes:edit", (self.notes.slug,)),
-            ("notes:delete", (self.notes.slug,)),
-        )
         login_url = reverse("users:login")
         for url in self.url_red_anon:
             with self.subTest(url=url):
@@ -49,16 +35,10 @@ class TestRoutes(BaseClassData):
             (self.author, HTTPStatus.OK),
             (self.reader, HTTPStatus.NOT_FOUND),
         )
-        urls = (
-            ("notes:detail", (self.notes.slug,)),
-            ("notes:edit", (self.notes.slug,)),
-            ("notes:delete", (self.notes.slug,)),
-        )
         for user, status in users_statuses:
             self.client.force_login(user)
-            for name, args in urls:
-                with self.subTest(user=user, name=name):
-                    url = reverse(name, args=args)
+            for url in self.url_users:
+                with self.subTest(user=user, url=url):
                     response = self.client.get(url)
                     self.assertEqual(response.status_code, status)
 
@@ -67,15 +47,8 @@ class TestRoutes(BaseClassData):
         со списком заметок, добавления новой заметки.
         страница успешного добавления заметки.
         """
-        urls = (
-            ("notes:success", None),
-            ("notes:add", None),
-            ("notes:list", None),
-        )
         user = self.reader
-        self.client.force_login(user)
-        for name, args in urls:
-            with self.subTest(user=user, name=name):
-                url = reverse(name, args=args)
-                response = self.client.get(url)
+        for url in self.url_user:
+            with self.subTest(user=user, url=url):
+                response = self.client_reader.get(url)
                 self.assertEqual(response.status_code, HTTPStatus.OK)

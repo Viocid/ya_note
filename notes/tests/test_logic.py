@@ -25,9 +25,14 @@ class TestLogic(BaseClassData):
         """Залогиненный пользователь может создать заметку"""
         note_count_s = Note.objects.count()
         self.client_reader.post(self.url_add, data=self.note_form)
+        note_from_db = Note.objects.get(slug=self.notes.slug)
         note_count = Note.objects.count()
         note_count_s += 1
         self.assertEqual(note_count, note_count_s)
+        self.assertEqual(self.notes.title, note_from_db.title)
+        self.assertEqual(self.notes.text, note_from_db.text)
+        self.assertEqual(self.notes.slug, note_from_db.slug)
+        self.assertEqual(self.notes.author, note_from_db.author)
 
     def test_not_unique_slug(self):
         """Невозможно создать две заметки с одинаковым slug."""
@@ -44,6 +49,7 @@ class TestLogic(BaseClassData):
         """Если при создании заметки не заполнен slug,
         то он формируется автоматически.
         """
+        Note.objects.all().delete()
         note_count_s = Note.objects.count()
         self.note_form.pop("slug")
         response = self.client_author.post(self.url_add, data=self.note_form)
@@ -51,7 +57,7 @@ class TestLogic(BaseClassData):
         note_count_s += 1
         note_count = Note.objects.count()
         self.assertEqual(note_count, note_count_s)
-        new_note = Note.objects.get(title="New title")
+        new_note = Note.objects.get()
         expected_slug = slugify(self.note_form["title"])
         self.assertEqual(new_note.slug, expected_slug)
 
@@ -63,6 +69,7 @@ class TestLogic(BaseClassData):
         self.assertEqual(self.notes.title, self.note_form["title"])
         self.assertEqual(self.notes.text, self.note_form["text"])
         self.assertEqual(self.notes.slug, self.note_form["slug"])
+        self.assertEqual(self.notes.author, self.author)
 
     def test_other_user_cant_edit_note(self):
         """Пользователь не может и редактировать чужие заметки"""
@@ -72,6 +79,7 @@ class TestLogic(BaseClassData):
         self.assertEqual(self.notes.title, note_from_db.title)
         self.assertEqual(self.notes.text, note_from_db.text)
         self.assertEqual(self.notes.slug, note_from_db.slug)
+        self.assertEqual(self.notes.author, note_from_db.author)
 
     def test_author_can_delete_note(self):
         """Пользователь может и удалять свои заметки"""
