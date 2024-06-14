@@ -9,7 +9,7 @@ User = get_user_model()
 
 
 class BaseClassData(TestCase):
-    """"""
+    """Базовые данные для тестов."""
 
     @classmethod
     def setUpTestData(cls):
