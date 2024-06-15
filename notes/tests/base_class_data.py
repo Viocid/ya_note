@@ -29,16 +29,20 @@ class BaseClassData(TestCase):
         cls.url_edit = reverse("notes:edit", args=(cls.notes.slug,))
         cls.url_delete = reverse("notes:delete", args=(cls.notes.slug,))
         cls.url_success = reverse("notes:success")
+        cls.url_login = reverse("users:login")
+
         cls.url_add_edit = (
             cls.url_add,
             cls.url_edit,
         )
+
         cls.url_anon = (
             reverse("notes:home", None),
             reverse("users:login", None),
             reverse("users:logout", None),
             reverse("users:signup", None),
         )
+
         cls.url_red_anon = (
             cls.url_detail,
             cls.url_success,

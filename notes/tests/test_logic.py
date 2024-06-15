@@ -1,7 +1,6 @@
 from http import HTTPStatus
 
 from django.contrib.auth import get_user_model
-from django.urls import reverse
 
 from notes.forms import WARNING
 from notes.models import Note
@@ -24,15 +23,16 @@ class TestLogic(BaseClassData):
     def test_user_can_create_note(self):
         """Залогиненный пользователь может создать заметку"""
         note_count_s = Note.objects.count()
+        self.note_form["author"] = self.reader
         self.client_reader.post(self.url_add, data=self.note_form)
-        note_from_db = Note.objects.get(slug=self.notes.slug)
+        note_from_db = Note.objects.get(slug=self.note_form["slug"])
         note_count = Note.objects.count()
         note_count_s += 1
         self.assertEqual(note_count, note_count_s)
-        self.assertEqual(self.notes.title, note_from_db.title)
-        self.assertEqual(self.notes.text, note_from_db.text)
-        self.assertEqual(self.notes.slug, note_from_db.slug)
-        self.assertEqual(self.notes.author, note_from_db.author)
+        self.assertEqual(self.note_form["title"], note_from_db.title)
+        self.assertEqual(self.note_form["text"], note_from_db.text)
+        self.assertEqual(self.note_form["slug"], note_from_db.slug)
+        self.assertEqual(self.note_form["author"], note_from_db.author)
 
     def test_not_unique_slug(self):
         """Невозможно создать две заметки с одинаковым slug."""
@@ -53,7 +53,7 @@ class TestLogic(BaseClassData):
         note_count_s = Note.objects.count()
         self.note_form.pop("slug")
         response = self.client_author.post(self.url_add, data=self.note_form)
-        self.assertRedirects(response, reverse("notes:success"))
+        self.assertRedirects(response, self.url_success)
         note_count_s += 1
         note_count = Note.objects.count()
         self.assertEqual(note_count, note_count_s)
@@ -64,7 +64,7 @@ class TestLogic(BaseClassData):
     def test_author_can_edit_note(self):
         """Пользователь может и редактировать свои заметки"""
         response = self.client_author.post(self.url_edit, self.note_form)
-        self.assertRedirects(response, reverse("notes:success"))
+        self.assertRedirects(response, self.url_success)
         self.notes.refresh_from_db()
         self.assertEqual(self.notes.title, self.note_form["title"])
         self.assertEqual(self.notes.text, self.note_form["text"])
@@ -83,9 +83,11 @@ class TestLogic(BaseClassData):
 
     def test_author_can_delete_note(self):
         """Пользователь может и удалять свои заметки"""
+        note_count_s = Note.objects.count()
         response = self.client_author.post(self.url_delete)
-        self.assertRedirects(response, reverse("notes:success"))
-        self.assertEqual(Note.objects.count(), 0)
+        note_count_s -= 1
+        self.assertRedirects(response, self.url_success)
+        self.assertEqual(Note.objects.count(), note_count_s)
 
     def test_other_user_cant_delete_note(self):
         """Пользователь не может и удалять чужие заметки"""

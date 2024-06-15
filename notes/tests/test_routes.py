@@ -1,7 +1,6 @@
 from http import HTTPStatus
 
 from django.contrib.auth import get_user_model
-from django.urls import reverse
 
 from notes.tests.base_class_data import BaseClassData
 
@@ -20,10 +19,9 @@ class TestRoutes(BaseClassData):
 
     def test_redirect_for_anonymous_client(self):
         """Перенаправления анонимного пользователя."""
-        login_url = reverse("users:login")
         for url in self.url_red_anon:
             with self.subTest(url=url):
-                redirect_url = f"{login_url}?next={url}"
+                redirect_url = f"{self.url_login}?next={url}"
                 response = self.client.get(url)
                 self.assertRedirects(response, redirect_url)
 
@@ -32,14 +30,13 @@ class TestRoutes(BaseClassData):
         редактирования или удаления чужих записок.
         """
         users_statuses = (
-            (self.author, HTTPStatus.OK),
-            (self.reader, HTTPStatus.NOT_FOUND),
+            (self.client_author, HTTPStatus.OK),
+            (self.client_reader, HTTPStatus.NOT_FOUND),
         )
         for user, status in users_statuses:
-            self.client.force_login(user)
             for url in self.url_users:
                 with self.subTest(user=user, url=url):
-                    response = self.client.get(url)
+                    response = user.get(url)
                     self.assertEqual(response.status_code, status)
 
     def test_availability_for_done_and_add(self):
